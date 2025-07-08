@@ -355,6 +355,87 @@ class PodiatryBackendTest(unittest.TestCase):
         
         print("Error handling tests successful")
 
+    # Anamnesis with Observations Tests
+    def test_06_anamnesis_with_observations(self):
+        """Test anamnesis with observations field"""
+        print("\n=== Testing Anamnesis with Observations Field ===")
+        
+        # Create a patient first
+        print("Creating patient for anamnesis observations test...")
+        response = requests.post(f"{BACKEND_URL}/patients", json=self.test_patient)
+        self.assertEqual(response.status_code, 200, f"Failed to create patient: {response.text}")
+        
+        patient_data = response.json()
+        patient_id = patient_data["id"]
+        self.created_resources["patients"].append(patient_id)
+        
+        # Update anamnesis with patient ID
+        self.test_anamnesis["patient_id"] = patient_id
+        
+        # Create anamnesis with observations
+        print("Creating anamnesis form with observations...")
+        response = requests.post(f"{BACKEND_URL}/anamnesis", json=self.test_anamnesis)
+        self.assertEqual(response.status_code, 200, f"Failed to create anamnesis: {response.text}")
+        
+        anamnesis_data = response.json()
+        anamnesis_id = anamnesis_data["id"]
+        self.created_resources["anamnesis"].append(anamnesis_id)
+        
+        print(f"Anamnesis created with ID: {anamnesis_id}")
+        
+        # Verify observations field is present and correct
+        self.assertIn("observations", anamnesis_data, "Observations field not present in created anamnesis")
+        self.assertEqual(anamnesis_data["observations"], self.test_anamnesis["observations"], 
+                         "Observations field value does not match expected value")
+        
+        # Get specific anamnesis form and verify observations
+        print(f"Getting anamnesis form with ID: {anamnesis_id} to verify observations...")
+        response = requests.get(f"{BACKEND_URL}/anamnesis/form/{anamnesis_id}")
+        self.assertEqual(response.status_code, 200, f"Failed to get anamnesis form: {response.text}")
+        
+        anamnesis = response.json()
+        self.assertIn("observations", anamnesis, "Observations field not present in retrieved anamnesis")
+        self.assertEqual(anamnesis["observations"], self.test_anamnesis["observations"], 
+                         "Observations field value does not match expected value in retrieved anamnesis")
+        
+        # Update anamnesis with new observations
+        print(f"Updating anamnesis with new observations...")
+        updated_anamnesis = self.test_anamnesis.copy()
+        updated_anamnesis["observations"] = "Procedimento atualizado: Remoção de calos nos pés e unhas encravadas. Aplicação de tratamento hidratante especial. Orientações detalhadas sobre cuidados diários e uso de calçados adequados."
+        
+        response = requests.put(f"{BACKEND_URL}/anamnesis/{anamnesis_id}", json=updated_anamnesis)
+        self.assertEqual(response.status_code, 200, f"Failed to update anamnesis: {response.text}")
+        
+        updated_anamnesis_data = response.json()
+        self.assertIn("observations", updated_anamnesis_data, "Observations field not present in updated anamnesis")
+        self.assertEqual(updated_anamnesis_data["observations"], updated_anamnesis["observations"], 
+                         "Updated observations field value does not match expected value")
+        
+        # Get anamnesis for patient and verify observations in list
+        print(f"Getting anamnesis list for patient ID: {patient_id} to verify observations...")
+        response = requests.get(f"{BACKEND_URL}/anamnesis/{patient_id}")
+        self.assertEqual(response.status_code, 200, f"Failed to get anamnesis for patient: {response.text}")
+        
+        anamnesis_list = response.json()
+        self.assertIsInstance(anamnesis_list, list, "Expected a list of anamnesis forms")
+        self.assertGreaterEqual(len(anamnesis_list), 1, "Expected at least one anamnesis form")
+        
+        # Find our anamnesis in the list
+        found = False
+        for anamnesis_item in anamnesis_list:
+            if anamnesis_item["id"] == anamnesis_id:
+                found = True
+                self.assertIn("observations", anamnesis_item, "Observations field not present in anamnesis list item")
+                self.assertEqual(anamnesis_item["observations"], updated_anamnesis["observations"], 
+                                "Observations field value does not match expected value in anamnesis list item")
+                break
+        
+        self.assertTrue(found, f"Could not find anamnesis with ID {anamnesis_id} in patient's anamnesis list")
+        
+        print(f"Anamnesis with observations tests successful for ID: {anamnesis_id}")
+        
+        return patient_id, anamnesis_id
+
 if __name__ == "__main__":
     # Run the tests
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
