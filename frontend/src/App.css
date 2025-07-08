@@ -393,7 +393,243 @@ body {
   color: #4a5568;
 }
 
-/* Responsive Design */
+/* Appointments and Calendar Styles */
+.appointment-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.appointment-form h3 {
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cancel-btn {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cancel-btn:hover {
+  background: #c53030;
+}
+
+.calendar-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.calendar-header h3 {
+  color: #4a5568;
+  font-size: 1.5rem;
+  text-transform: capitalize;
+}
+
+.calendar-nav {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.calendar-nav:hover {
+  background: #5a67d8;
+}
+
+.calendar-grid {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #f7fafc;
+}
+
+.weekday {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  color: #4a5568;
+  border-right: 1px solid #e2e8f0;
+}
+
+.weekday:last-child {
+  border-right: none;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+  min-height: 120px;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.5rem;
+  position: relative;
+}
+
+.calendar-day.has-day {
+  background: white;
+  cursor: pointer;
+}
+
+.calendar-day.empty-day {
+  background: #f9f9f9;
+}
+
+.calendar-day:hover.has-day {
+  background: #f7fafc;
+}
+
+.calendar-day:nth-child(7n) {
+  border-right: none;
+}
+
+.day-number {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.day-appointments {
+  margin-top: 0.5rem;
+}
+
+.appointment-item {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.appointment-time {
+  font-weight: 600;
+  font-size: 0.7rem;
+}
+
+.appointment-patient {
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+
+.appointments-list {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.appointments-list h3 {
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.appointments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.appointment-card {
+  background: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  transition: transform 0.3s;
+}
+
+.appointment-card:hover {
+  transform: translateY(-2px);
+}
+
+.appointment-card h4 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.appointment-card p {
+  color: #718096;
+  margin-bottom: 0.25rem;
+}
+
+/* Observations Section */
+.form-section textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.3s;
+}
+
+.form-section textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-section textarea::placeholder {
+  color: #a0aec0;
+}
+
+/* Responsive Design for Calendar */
+@media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .calendar-day {
+    min-height: 80px;
+  }
+  
+  .appointment-item {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.3rem;
+  }
+  
+  .appointments-grid {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
