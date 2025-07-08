@@ -990,7 +990,256 @@ const PatientsList = () => {
   );
 };
 
-// Home Component
+// Appointments Component
+const Appointments = () => {
+  const [appointments, setAppointments] = useState([]);
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    fetchAppointments();
+    fetchPatients();
+  }, []);
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get(`${API}/appointments`);
+      setAppointments(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar agendamentos:", error);
+    }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const response = await axios.get(`${API}/patients`);
+      setPatients(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar pacientes:", error);
+    }
+  };
+
+  const handleCreateAppointment = async (e) => {
+    e.preventDefault();
+    try {
+      const patient = patients.find(p => p.id === selectedPatient);
+      const appointmentData = {
+        patient_id: selectedPatient,
+        patient_name: patient.name,
+        date: selectedDate,
+        time: selectedTime
+      };
+      
+      await axios.post(`${API}/appointments`, appointmentData);
+      alert("Agendamento criado com sucesso!");
+      setShowForm(false);
+      setSelectedPatient("");
+      setSelectedDate("");
+      setSelectedTime("");
+      fetchAppointments();
+    } catch (error) {
+      console.error("Erro ao criar agendamento:", error);
+      alert("Erro ao criar agendamento");
+    }
+  };
+
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    const days = [];
+    
+    // Empty cells for days before month starts
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
+    
+    return days;
+  };
+
+  const getAppointmentsForDay = (day) => {
+    if (!day) return [];
+    
+    const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return appointments.filter(apt => apt.date === dateStr);
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('pt-BR', { 
+      year: 'numeric', 
+      month: 'long' 
+    });
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  const prevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const timeSlots = [
+    "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"
+  ];
+
+  return (
+    <div className="container">
+      <div className="form-header">
+        <h2>📅 Agendamentos</h2>
+        <button 
+          onClick={() => setShowForm(!showForm)} 
+          className="add-btn"
+        >
+          + Novo Agendamento
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="appointment-form">
+          <h3>Novo Agendamento</h3>
+          <form onSubmit={handleCreateAppointment}>
+            <div className="form-group">
+              <label>Paciente *</label>
+              <select
+                value={selectedPatient}
+                onChange={(e) => setSelectedPatient(e.target.value)}
+                required
+              >
+                <option value="">Selecione um paciente</option>
+                {patients.map(patient => (
+                  <option key={patient.id} value={patient.id}>
+                    {patient.name} - {patient.contact}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label>Data *</label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Horário *</label>
+                <select
+                  value={selectedTime}
+                  onChange={(e) => setSelectedTime(e.target.value)}
+                  required
+                >
+                  <option value="">Selecione o horário</option>
+                  {timeSlots.map(time => (
+                    <option key={time} value={time}>
+                      {time}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            <div className="form-actions">
+              <button type="submit" className="submit-btn">
+                Agendar Consulta
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setShowForm(false)}
+                className="cancel-btn"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="calendar-container">
+        <div className="calendar-header">
+          <button onClick={prevMonth} className="calendar-nav">
+            ← Anterior
+          </button>
+          <h3>{formatDate(currentDate)}</h3>
+          <button onClick={nextMonth} className="calendar-nav">
+            Próximo →
+          </button>
+        </div>
+
+        <div className="calendar-grid">
+          <div className="calendar-weekdays">
+            <div className="weekday">Dom</div>
+            <div className="weekday">Seg</div>
+            <div className="weekday">Ter</div>
+            <div className="weekday">Qua</div>
+            <div className="weekday">Qui</div>
+            <div className="weekday">Sex</div>
+            <div className="weekday">Sáb</div>
+          </div>
+          
+          <div className="calendar-days">
+            {getDaysInMonth(currentDate).map((day, index) => (
+              <div key={index} className={`calendar-day ${day ? 'has-day' : 'empty-day'}`}>
+                {day && (
+                  <>
+                    <span className="day-number">{day}</span>
+                    <div className="day-appointments">
+                      {getAppointmentsForDay(day).map(apt => (
+                        <div key={apt.id} className="appointment-item">
+                          <div className="appointment-time">{apt.time}</div>
+                          <div className="appointment-patient">{apt.patient_name}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="appointments-list">
+        <h3>Próximos Agendamentos</h3>
+        {appointments.length === 0 ? (
+          <p>Nenhum agendamento encontrado.</p>
+        ) : (
+          <div className="appointments-grid">
+            {appointments
+              .filter(apt => new Date(apt.date) >= new Date())
+              .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time))
+              .map(appointment => (
+                <div key={appointment.id} className="appointment-card">
+                  <h4>{appointment.patient_name}</h4>
+                  <p><strong>Data:</strong> {new Date(appointment.date).toLocaleDateString('pt-BR')}</p>
+                  <p><strong>Horário:</strong> {appointment.time}</p>
+                  <p><strong>Status:</strong> {appointment.status}</p>
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 const Home = () => {
   return (
     <div className="container">
