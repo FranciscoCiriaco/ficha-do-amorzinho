@@ -77,7 +77,8 @@ class PodiatryBackendTest(unittest.TestCase):
                 "cpf": "123.456.789-00",
                 "signature": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAADICAYAAADGFbfiAAAAAXNSR0IArs4c6QAAIABJREFUeF7t",
                 "date": "2023-05-20"
-            }
+            },
+            "observations": "Procedimento realizado: Remoção de calos nos pés. Aplicação de tratamento hidratante. Orientações sobre cuidados diários."
         }
         
         # Test appointment data
