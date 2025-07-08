@@ -198,11 +198,11 @@ frontend:
 
   - task: "Anamnesis Form UI"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/App.js"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "needs_testing"
         agent: "main"
@@ -210,6 +210,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "Unable to fully test the Anamnesis Form UI. When trying to access the anamnesis form directly or through patient registration, it redirects to the homepage. This suggests there might be an issue with the route handling or the anamnesis form component."
+      - working: true
+        agent: "testing"
+        comment: "The anamnesis form is now working correctly after the routing fix. Successfully tested the complete workflow: 1) Created a new patient, 2) Was redirected to the anamnesis form, 3) Filled out all sections including general data, clinical data, and the responsibility term with signature, 4) Successfully submitted the form. Direct access to the anamnesis form via URL still redirects to the homepage, but accessing it through patient registration or from the patients list works correctly."
 
   - task: "Signature Capture"
     implemented: true
