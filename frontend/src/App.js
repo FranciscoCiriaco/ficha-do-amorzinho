@@ -245,7 +245,8 @@ const PatientRegistration = () => {
 };
 
 // Anamnesis Form Component
-const AnamnesisForm = ({ patientId }) => {
+const AnamnesisForm = () => {
+  const { patientId } = useParams();
   const navigate = useNavigate();
   const [patient, setPatient] = useState(null);
   const [signature, setSignature] = useState("");
