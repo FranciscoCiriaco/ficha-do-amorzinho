@@ -1299,7 +1299,7 @@ function App() {
           <Route path="/register" element={<PatientRegistration />} />
           <Route path="/patients" element={<PatientsList />} />
           <Route path="/anamnesis/:patientId" element={<AnamnesisForm />} />
-          <Route path="/appointments" element={<div>Agendamentos - Em desenvolvimento</div>} />
+          <Route path="/appointments" element={<Appointments />} />
         </Routes>
       </BrowserRouter>
     </div>
