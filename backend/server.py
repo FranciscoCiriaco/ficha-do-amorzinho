@@ -115,6 +115,7 @@ class Anamnesis(BaseModel):
     general_data: GeneralData
     clinical_data: ClinicalData
     responsibility_term: ResponsibilityTerm
+    observations: str = ""  # Campo para observações dos procedimentos
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -123,6 +124,7 @@ class AnamnesisCreate(BaseModel):
     general_data: GeneralData
     clinical_data: ClinicalData
     responsibility_term: ResponsibilityTerm
+    observations: str = ""
 
 # Appointment Models
 class Appointment(BaseModel):
