@@ -299,7 +299,8 @@ const AnamnesisForm = () => {
       cpf: "",
       signature: "",
       date: new Date().toISOString().split('T')[0]
-    }
+    },
+    observations: ""
   });
 
   useEffect(() => {
