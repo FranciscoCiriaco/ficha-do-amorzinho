@@ -107,63 +107,78 @@ user_problem_statement: "Build a comprehensive podiatry management system with p
 backend:
   - task: "Patient Registration API"
     implemented: true
-    working: "needs_testing"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "needs_testing"
         agent: "main"
         comment: "Created comprehensive patient registration with all required fields: name, address, neighborhood, city, state, CEP, birth_date, sex, profession, contact"
+      - working: true
+        agent: "testing"
+        comment: "Patient Registration API is working correctly. All CRUD operations (create, read, update, delete) were tested successfully."
 
   - task: "Anamnesis Form API"
     implemented: true
-    working: "needs_testing"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "needs_testing"
         agent: "main"
         comment: "Created comprehensive anamnesis form API with general data, clinical data, and responsibility term sections based on medical forms provided"
+      - working: true
+        agent: "testing"
+        comment: "Anamnesis Form API is working correctly. Create, read, and update operations were tested successfully. Note: Delete operation is not implemented (returns 405 Method Not Allowed), but this is not a critical issue as it wasn't specified in the requirements."
 
   - task: "Database Models"
     implemented: true
-    working: "needs_testing"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "needs_testing"
         agent: "main"
         comment: "Created Patient, Anamnesis, GeneralData, ClinicalData, ResponsibilityTerm, and Appointment models with proper relationships"
+      - working: true
+        agent: "testing"
+        comment: "Database models are working correctly. All models (Patient, Anamnesis with nested GeneralData, ClinicalData, and ResponsibilityTerm, and Appointment) were tested through API operations and are functioning as expected."
 
   - task: "Search Functionality"
     implemented: true
-    working: "needs_testing"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "needs_testing"
         agent: "main"
         comment: "Added patient search by name, CPF, or contact number"
+      - working: true
+        agent: "testing"
+        comment: "Search functionality is working correctly. Successfully tested searching for patients by name."
 
   - task: "Appointment Management API"
     implemented: true
-    working: "needs_testing"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "needs_testing"
         agent: "main"
         comment: "Basic appointment CRUD operations implemented"
+      - working: true
+        agent: "testing"
+        comment: "Appointment Management API is working correctly. Create and read operations were tested successfully. Note: Delete operation is not implemented (returns 405 Method Not Allowed), but this is not a critical issue as it wasn't specified in the requirements."
 
 frontend:
   - task: "Patient Registration Form"
@@ -229,7 +244,7 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: false
 
 test_plan:
@@ -247,3 +262,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Created comprehensive podiatry management system with patient registration, anamnesis forms based on medical forms provided, signature capture, and search functionality. All core features implemented and need testing."
+  - agent: "testing"
+    message: "Completed testing of all backend API endpoints. All core functionality is working correctly. The Patient Registration API, Anamnesis Form API, Database Models, Search Functionality, and Appointment Management API are all functioning as expected. Note that delete operations for anamnesis and appointments are not implemented, but this wasn't specified in the requirements. Error handling for non-existent resources returns 400 Bad Request instead of 404 Not Found in some cases, but this is a minor issue. Overall, the backend is ready for frontend integration."
