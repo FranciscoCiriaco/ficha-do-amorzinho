@@ -379,6 +379,13 @@ const AnamnesisForm = () => {
     }));
   };
 
+  const handleObservationsChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      observations: e.target.value
+    }));
+  };
+
   if (!patient) {
     return <div>Carregando...</div>;
   }
