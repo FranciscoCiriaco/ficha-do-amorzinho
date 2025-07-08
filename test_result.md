@@ -216,11 +216,11 @@ frontend:
 
   - task: "Signature Capture"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/App.js"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "needs_testing"
         agent: "main"
@@ -228,6 +228,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "Unable to test the Signature Capture component as it's part of the Anamnesis Form which could not be accessed during testing."
+      - working: true
+        agent: "testing"
+        comment: "The signature capture component is working correctly. Successfully tested drawing on the canvas and submitting the form with the signature. The signature is properly captured and saved with the anamnesis form."
 
   - task: "Patient List and Search"
     implemented: true
