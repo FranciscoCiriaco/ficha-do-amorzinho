@@ -1266,6 +1266,12 @@ const Home = () => {
           <h3>Agendamentos</h3>
           <p>Gerenciar consultas e horários</p>
         </Link>
+        
+        <Link to="/patients" className="action-card">
+          <div className="action-icon">🔍</div>
+          <h3>Buscar Pacientes</h3>
+          <p>Encontrar e visualizar histórico de pacientes</p>
+        </Link>
       </div>
     </div>
   );
