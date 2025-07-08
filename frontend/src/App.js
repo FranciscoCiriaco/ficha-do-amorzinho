@@ -897,6 +897,22 @@ const AnamnesisForm = () => {
             </p>
           </div>
         </div>
+
+        {/* Observations Section */}
+        <div className="form-section">
+          <h3>📝 Observações dos Procedimentos</h3>
+          
+          <div className="form-group">
+            <label>Observações e Procedimentos Realizados</label>
+            <textarea
+              name="observations"
+              value={formData.observations}
+              onChange={handleObservationsChange}
+              rows="6"
+              placeholder="Descreva os procedimentos realizados, observações do tratamento, recomendações, etc..."
+            />
+          </div>
+        </div>
         
         <button type="submit" className="submit-btn">
           Salvar Ficha de Anamnese
