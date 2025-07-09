@@ -329,6 +329,62 @@ async def update_anamnesis(anamnesis_id: str, anamnesis_update: AnamnesisCreate)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+async def create_automatic_notifications(appointment_data: dict, patient_data: dict):
+    """Create automatic notifications for an appointment"""
+    try:
+        appointment_datetime = datetime.strptime(f"{appointment_data['date']} {appointment_data['time']}", "%Y-%m-%d %H:%M")
+        
+        # Create 1 day before notification
+        one_day_before = appointment_datetime - timedelta(days=1)
+        one_day_message = generate_whatsapp_message(
+            patient_data['name'], 
+            appointment_data['date'], 
+            appointment_data['time'], 
+            "1_day_before"
+        )
+        
+        notification_1_day = Notification(
+            appointment_id=appointment_data['id'],
+            patient_id=appointment_data['patient_id'],
+            patient_name=patient_data['name'],
+            patient_contact=patient_data['contact'],
+            notification_type="1_day_before",
+            scheduled_time=one_day_before,
+            appointment_date=appointment_data['date'],
+            appointment_time=appointment_data['time'],
+            message=one_day_message
+        )
+        
+        # Create 1 hour 30 minutes before notification
+        one_hour_30_before = appointment_datetime - timedelta(hours=1, minutes=30)
+        one_hour_30_message = generate_whatsapp_message(
+            patient_data['name'], 
+            appointment_data['date'], 
+            appointment_data['time'], 
+            "1_hour_30_before"
+        )
+        
+        notification_1h30 = Notification(
+            appointment_id=appointment_data['id'],
+            patient_id=appointment_data['patient_id'],
+            patient_name=patient_data['name'],
+            patient_contact=patient_data['contact'],
+            notification_type="1_hour_30_before",
+            scheduled_time=one_hour_30_before,
+            appointment_date=appointment_data['date'],
+            appointment_time=appointment_data['time'],
+            message=one_hour_30_message
+        )
+        
+        # Save notifications to database
+        await db.notifications.insert_one(notification_1_day.dict())
+        await db.notifications.insert_one(notification_1h30.dict())
+        
+        return True
+    except Exception as e:
+        print(f"Error creating notifications: {e}")
+        return False
+
 # Appointment endpoints
 @api_router.post("/appointments", response_model=Appointment)
 async def create_appointment(appointment: AppointmentCreate):
