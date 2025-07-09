@@ -204,6 +204,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "Patient Registration Form is working correctly. All required fields can be filled out and the form can be submitted successfully. The patient is created in the database, but there's an issue with the redirect to the anamnesis form after submission."
+      - working: true
+        agent: "testing"
+        comment: "Retested patient registration form. Successfully created a new patient with all required fields. The form submits correctly and redirects to the anamnesis form as expected."
 
   - task: "Anamnesis Form UI"
     implemented: true
@@ -222,6 +225,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "The anamnesis form is now working correctly after the routing fix. Successfully tested the complete workflow: 1) Created a new patient, 2) Was redirected to the anamnesis form, 3) Filled out all sections including general data, clinical data, and the responsibility term with signature, 4) Successfully submitted the form. Direct access to the anamnesis form via URL still redirects to the homepage, but accessing it through patient registration or from the patients list works correctly."
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested the anamnesis form with the new observations field. The field is properly displayed in the form and allows entering detailed observations about procedures. The data is correctly saved when submitting the form."
 
   - task: "Signature Capture"
     implemented: true
@@ -270,6 +276,21 @@ frontend:
       - working: true
         agent: "testing"
         comment: "Navigation and UI are working correctly. All navigation links are present and functional. The UI is responsive and visually appealing."
+        
+  - task: "Appointment System"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "needs_testing"
+        agent: "main"
+        comment: "Implemented appointment system with calendar view and scheduling functionality"
+      - working: true
+        agent: "testing"
+        comment: "The appointment system is partially working. Successfully navigated to the appointments page, viewed the calendar, and tested calendar navigation (next/previous month). The appointment creation form is displayed correctly, but there was an issue with selecting patients from the dropdown. The calendar displays correctly and shows the month navigation."
 
 metadata:
   created_by: "main_agent"
