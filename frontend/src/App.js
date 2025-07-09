@@ -1496,6 +1496,7 @@ const Navigation = () => {
         <Link to="/patients">Pacientes</Link>
         <Link to="/register">Cadastrar</Link>
         <Link to="/appointments">Agendamentos</Link>
+        <Link to="/notifications">Notificações</Link>
       </div>
     </nav>
   );
