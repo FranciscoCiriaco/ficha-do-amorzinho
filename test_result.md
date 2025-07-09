@@ -189,6 +189,21 @@ backend:
         agent: "testing"
         comment: "Verified that all existing appointment functionality continues to work correctly after the anamnesis model update. Successfully tested appointment creation, retrieval of all appointments, and retrieval of appointments for a specific patient."
 
+  - task: "WhatsApp Notifications System"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "needs_testing"
+        agent: "main"
+        comment: "Implemented WhatsApp notifications system with automatic notification creation for appointments, message templates, and notification management endpoints"
+      - working: true
+        agent: "testing"
+        comment: "WhatsApp Notifications System is working correctly. Successfully tested notification creation when appointments are made, with both '1_day_before' and '1_hour_30_before' notifications being created automatically. The notification endpoints (GET /api/notifications, GET /api/notifications/pending, GET /api/notifications/upcoming, POST /api/notifications/{id}/mark-sent) are all functioning as expected. WhatsApp message generation is working correctly with proper formatting and inclusion of patient name, date, and time. WhatsApp links are properly generated with the patient's phone number. Notification scheduling is accurate, with notifications being scheduled for exactly 1 day before and 1 hour 30 minutes before the appointment time."
+
 frontend:
   - task: "Patient Registration Form"
     implemented: true
@@ -310,6 +325,7 @@ test_plan:
     - "Anamnesis Form UI"
     - "Signature Capture"
     - "Appointment System"
+    - "WhatsApp Notifications System"
   stuck_tasks: 
     - "Appointment System"
   test_all: true
@@ -330,3 +346,5 @@ agent_communication:
     message: "Completed testing of the new features. The observations field in the anamnesis form is working correctly - successfully created a new patient, filled out the anamnesis form including the observations field, and submitted it. The appointment system is also functional - successfully navigated to the appointments page, viewed the calendar, and tested calendar navigation (next/previous month). The appointment creation form is displayed correctly, but there was an issue with selecting patients from the dropdown. The calendar displays correctly and shows the month navigation. Overall, the core functionality is working, but there might be an issue with the patient selection in the appointment form."
   - agent: "testing"
     message: "Completed detailed testing of the appointment system. The calendar functionality works correctly - navigation between months and display of days works as expected. Patient selection in the appointment form also works correctly. However, there is an issue with the time selection dropdown. When attempting to select a time, the dropdown doesn't populate with options correctly. This prevents appointment creation as the time field is required. The form validation correctly identifies this as an error, but users cannot proceed with appointment creation until this issue is fixed."
+  - agent: "testing"
+    message: "Completed testing of the WhatsApp notifications system. All functionality is working correctly. Successfully tested notification creation when appointments are made, with both '1_day_before' and '1_hour_30_before' notifications being created automatically. The notification endpoints (GET /api/notifications, GET /api/notifications/pending, GET /api/notifications/upcoming, POST /api/notifications/{id}/mark-sent) are all functioning as expected. WhatsApp message generation is working correctly with proper formatting and inclusion of patient name, date, and time. WhatsApp links are properly generated with the patient's phone number. Notification scheduling is accurate, with notifications being scheduled for exactly 1 day before and 1 hour 30 minutes before the appointment time."
