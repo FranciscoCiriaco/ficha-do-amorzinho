@@ -1514,6 +1514,7 @@ function App() {
           <Route path="/patients" element={<PatientsList />} />
           <Route path="/anamnesis/:patientId" element={<AnamnesisForm />} />
           <Route path="/appointments" element={<Appointments />} />
+          <Route path="/notifications" element={<Notifications />} />
         </Routes>
       </BrowserRouter>
     </div>
