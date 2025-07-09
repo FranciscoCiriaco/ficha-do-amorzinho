@@ -1474,6 +1474,12 @@ const Home = () => {
           <p>Gerenciar consultas e horários</p>
         </Link>
         
+        <Link to="/notifications" className="action-card">
+          <div className="action-icon">🔔</div>
+          <h3>Notificações WhatsApp</h3>
+          <p>Enviar lembretes e confirmações</p>
+        </Link>
+        
         <Link to="/patients" className="action-card">
           <div className="action-icon">🔍</div>
           <h3>Buscar Pacientes</h3>
