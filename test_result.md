@@ -309,7 +309,9 @@ test_plan:
     - "Patient Registration Form"
     - "Anamnesis Form UI"
     - "Signature Capture"
-  stuck_tasks: []
+    - "Appointment System"
+  stuck_tasks: 
+    - "Appointment System"
   test_all: true
   test_priority: "high_first"
 
