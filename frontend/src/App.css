@@ -610,7 +610,275 @@ body {
   color: #a0aec0;
 }
 
-/* Responsive Design for Calendar */
+/* Notifications Styles */
+.notification-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tab-btn {
+  padding: 0.8rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  color: #4a5568;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.tab-btn:hover:not(.active) {
+  background: #f7fafc;
+  border-color: #667eea;
+}
+
+.notifications-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.notifications-section h3 {
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.no-notifications {
+  text-align: center;
+  color: #718096;
+  font-size: 1.1rem;
+  padding: 3rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 2px dashed #e2e8f0;
+}
+
+.notifications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.notification-card {
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.notification-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.notification-card.pending {
+  background: linear-gradient(135deg, #fef5e7 0%, #fff2e6 100%);
+  border-left: 5px solid #f6ad55;
+}
+
+.notification-card.upcoming {
+  background: linear-gradient(135deg, #e6fffa 0%, #f0fff4 100%);
+  border-left: 5px solid #48bb78;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.notification-header h4 {
+  color: #2d3748;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.notification-type {
+  background: #667eea;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.notification-details {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+}
+
+.notification-details p {
+  margin: 0.3rem 0;
+  color: #4a5568;
+}
+
+.notification-message {
+  margin-bottom: 1.5rem;
+}
+
+.notification-message h5 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.message-preview {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  font-family: monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #4a5568;
+  white-space: pre-wrap;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.whatsapp-btn {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+  flex: 1;
+  min-width: 150px;
+}
+
+.whatsapp-btn:hover {
+  transform: translateY(-2px);
+}
+
+.mark-sent-btn {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+  flex: 1;
+  min-width: 150px;
+}
+
+.mark-sent-btn:hover {
+  transform: translateY(-2px);
+}
+
+.preview-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+  flex: 1;
+  min-width: 150px;
+}
+
+.preview-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Message Modal */
+.message-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.modal-content pre {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.modal-content button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Responsive Design for Notifications */
+@media (max-width: 768px) {
+  .notification-tabs {
+    flex-direction: column;
+  }
+  
+  .tab-btn {
+    text-align: center;
+  }
+  
+  .notifications-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .notification-actions {
+    flex-direction: column;
+  }
+  
+  .whatsapp-btn,
+  .mark-sent-btn,
+  .preview-btn {
+    min-width: 100%;
+  }
+}
 @media (max-width: 768px) {
   .calendar-header {
     flex-direction: column;
