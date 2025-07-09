@@ -419,7 +419,98 @@ async def get_patient_appointments(patient_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# Search endpoint
+# Notification endpoints
+@api_router.get("/notifications", response_model=List[Notification])
+async def get_notifications():
+    try:
+        notifications = await db.notifications.find().to_list(1000)
+        return [Notification(**notification) for notification in notifications]
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.get("/notifications/pending")
+async def get_pending_notifications():
+    try:
+        current_time = datetime.utcnow()
+        
+        # Get notifications that are due (scheduled time is past) and not sent yet
+        pending_notifications = await db.notifications.find({
+            "scheduled_time": {"$lte": current_time},
+            "sent": False
+        }).to_list(100)
+        
+        result = []
+        for notification in pending_notifications:
+            notification_obj = Notification(**notification)
+            whatsapp_link = create_whatsapp_link(notification_obj.patient_contact, notification_obj.message)
+            
+            result.append({
+                "id": notification_obj.id,
+                "patient_name": notification_obj.patient_name,
+                "patient_contact": notification_obj.patient_contact,
+                "notification_type": notification_obj.notification_type,
+                "appointment_date": notification_obj.appointment_date,
+                "appointment_time": notification_obj.appointment_time,
+                "message": notification_obj.message,
+                "whatsapp_link": whatsapp_link,
+                "scheduled_time": notification_obj.scheduled_time
+            })
+        
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.post("/notifications/{notification_id}/mark-sent")
+async def mark_notification_sent(notification_id: str):
+    try:
+        result = await db.notifications.update_one(
+            {"id": notification_id},
+            {"$set": {"sent": True}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        return {"message": "Notification marked as sent"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.get("/notifications/upcoming")
+async def get_upcoming_notifications():
+    try:
+        current_time = datetime.utcnow()
+        next_24_hours = current_time + timedelta(hours=24)
+        
+        # Get notifications scheduled for the next 24 hours
+        upcoming_notifications = await db.notifications.find({
+            "scheduled_time": {
+                "$gte": current_time,
+                "$lte": next_24_hours
+            },
+            "sent": False
+        }).to_list(100)
+        
+        result = []
+        for notification in upcoming_notifications:
+            notification_obj = Notification(**notification)
+            whatsapp_link = create_whatsapp_link(notification_obj.patient_contact, notification_obj.message)
+            
+            result.append({
+                "id": notification_obj.id,
+                "patient_name": notification_obj.patient_name,
+                "patient_contact": notification_obj.patient_contact,
+                "notification_type": notification_obj.notification_type,
+                "appointment_date": notification_obj.appointment_date,
+                "appointment_time": notification_obj.appointment_time,
+                "message": notification_obj.message,
+                "whatsapp_link": whatsapp_link,
+                "scheduled_time": notification_obj.scheduled_time,
+                "time_until_send": notification_obj.scheduled_time - current_time
+            })
+        
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 @api_router.get("/search/patients")
 async def search_patients(q: str):
     try:
