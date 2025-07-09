@@ -392,6 +392,13 @@ async def create_appointment(appointment: AppointmentCreate):
         appointment_dict = appointment.dict()
         appointment_obj = Appointment(**appointment_dict)
         await db.appointments.insert_one(appointment_obj.dict())
+        
+        # Get patient data for notifications
+        patient = await db.patients.find_one({"id": appointment.patient_id})
+        if patient:
+            # Create automatic notifications
+            await create_automatic_notifications(appointment_obj.dict(), patient)
+        
         return appointment_obj
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
