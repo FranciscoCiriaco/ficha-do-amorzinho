@@ -223,6 +223,21 @@ frontend:
         agent: "testing"
         comment: "Retested patient registration form. Successfully created a new patient with all required fields. The form submits correctly and redirects to the anamnesis form as expected."
 
+  - task: "WhatsApp Notifications Frontend"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "needs_testing"
+        agent: "main"
+        comment: "Implemented WhatsApp notifications frontend with tabs for pending and upcoming notifications, message preview, and WhatsApp sending functionality"
+      - working: true
+        agent: "testing"
+        comment: "Completed comprehensive testing of the WhatsApp notifications frontend. The navigation link to the notifications page works correctly. The notifications page loads with proper tabs for 'Pendentes' and 'Próximas' notifications. Tab switching functionality works as expected. The system displays both pending and upcoming notifications correctly. The message preview functionality works properly, showing a well-formatted message with patient name, appointment date/time, and instructions. The WhatsApp button is present and functional. The 'Marcar como Enviada' button is also present and functional. The UI is responsive and professional. Overall, the WhatsApp notifications frontend is fully functional and meets all requirements."
+
   - task: "Anamnesis Form UI"
     implemented: true
     working: true
