@@ -279,9 +279,9 @@ frontend:
         
   - task: "Appointment System"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -291,6 +291,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "The appointment system is partially working. Successfully navigated to the appointments page, viewed the calendar, and tested calendar navigation (next/previous month). The appointment creation form is displayed correctly, but there was an issue with selecting patients from the dropdown. The calendar displays correctly and shows the month navigation."
+      - working: false
+        agent: "testing"
+        comment: "Detailed testing of the appointment system revealed issues with the time selection dropdown. Patient selection works correctly, and the date field can be filled, but the time dropdown doesn't populate with options correctly. When attempting to submit the form, validation errors occur because the time field is required but not properly populated. The calendar functionality (navigation, display) works correctly, but appointment creation is blocked by the time selection issue."
 
 metadata:
   created_by: "main_agent"
