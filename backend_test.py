@@ -436,6 +436,422 @@ class PodiatryBackendTest(unittest.TestCase):
         
         return patient_id, anamnesis_id
 
+    # WhatsApp Notification Tests
+    def test_07_whatsapp_notification_creation(self):
+        """Test WhatsApp notification creation when appointments are made"""
+        print("\n=== Testing WhatsApp Notification Creation ===")
+        
+        # Create a patient first
+        print("Creating patient for notification test...")
+        response = requests.post(f"{BACKEND_URL}/patients", json=self.test_patient)
+        self.assertEqual(response.status_code, 200, f"Failed to create patient: {response.text}")
+        
+        patient_data = response.json()
+        patient_id = patient_data["id"]
+        self.created_resources["patients"].append(patient_id)
+        
+        # Create an appointment for tomorrow
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        appointment_time = "14:00"
+        
+        tomorrow_appointment = {
+            "patient_id": patient_id,
+            "patient_name": self.test_patient["name"],
+            "date": tomorrow,
+            "time": appointment_time
+        }
+        
+        print(f"Creating appointment for tomorrow ({tomorrow}) at {appointment_time}...")
+        response = requests.post(f"{BACKEND_URL}/appointments", json=tomorrow_appointment)
+        self.assertEqual(response.status_code, 200, f"Failed to create appointment: {response.text}")
+        
+        appointment_data = response.json()
+        appointment_id = appointment_data["id"]
+        self.created_resources["appointments"].append(appointment_id)
+        
+        # Get all notifications
+        print("Getting all notifications...")
+        response = requests.get(f"{BACKEND_URL}/notifications")
+        self.assertEqual(response.status_code, 200, f"Failed to get notifications: {response.text}")
+        
+        notifications = response.json()
+        self.assertIsInstance(notifications, list, "Expected a list of notifications")
+        
+        # Filter notifications for our appointment
+        appointment_notifications = [n for n in notifications if n["appointment_id"] == appointment_id]
+        
+        # Verify that both notification types were created
+        self.assertEqual(len(appointment_notifications), 2, 
+                         f"Expected 2 notifications for appointment, got {len(appointment_notifications)}")
+        
+        notification_types = [n["notification_type"] for n in appointment_notifications]
+        self.assertIn("1_day_before", notification_types, "1_day_before notification not created")
+        self.assertIn("1_hour_30_before", notification_types, "1_hour_30_before notification not created")
+        
+        # Verify notification content
+        for notification in appointment_notifications:
+            self.assertEqual(notification["patient_id"], patient_id, "Patient ID mismatch in notification")
+            self.assertEqual(notification["patient_name"], self.test_patient["name"], "Patient name mismatch in notification")
+            self.assertEqual(notification["patient_contact"], self.test_patient["contact"], "Patient contact mismatch in notification")
+            self.assertEqual(notification["appointment_date"], tomorrow, "Appointment date mismatch in notification")
+            self.assertEqual(notification["appointment_time"], appointment_time, "Appointment time mismatch in notification")
+            self.assertFalse(notification["sent"], "Notification should not be marked as sent initially")
+            
+            # Verify message content
+            self.assertIn(self.test_patient["name"], notification["message"], "Patient name not found in message")
+            
+            # Check for date in Brazilian format (convert YYYY-MM-DD to DD/MM/YYYY)
+            date_parts = tomorrow.split("-")
+            brazilian_date = f"{date_parts[2]}/{date_parts[1]}/{date_parts[0]}"
+            self.assertIn(brazilian_date, notification["message"], "Formatted date not found in message")
+            
+            self.assertIn(appointment_time, notification["message"], "Appointment time not found in message")
+            
+            # Verify specific content based on notification type
+            if notification["notification_type"] == "1_day_before":
+                self.assertIn("amanhã", notification["message"], "Expected 'amanhã' in 1_day_before message")
+                self.assertIn("CONFIRMO", notification["message"], "Expected 'CONFIRMO' in 1_day_before message")
+            else:  # 1_hour_30_before
+                self.assertIn("1h30", notification["message"], "Expected '1h30' in 1_hour_30_before message")
+                self.assertIn("A CAMINHO", notification["message"], "Expected 'A CAMINHO' in 1_hour_30_before message")
+        
+        print(f"WhatsApp notification creation successful for appointment ID: {appointment_id}")
+        
+        return patient_id, appointment_id, appointment_notifications
+
+    def test_08_notification_endpoints(self):
+        """Test notification endpoints"""
+        print("\n=== Testing Notification Endpoints ===")
+        
+        # Create a patient and appointment first to generate notifications
+        print("Creating patient and appointment for notification endpoints test...")
+        response = requests.post(f"{BACKEND_URL}/patients", json=self.test_patient)
+        self.assertEqual(response.status_code, 200, f"Failed to create patient: {response.text}")
+        
+        patient_data = response.json()
+        patient_id = patient_data["id"]
+        self.created_resources["patients"].append(patient_id)
+        
+        # Create an appointment for today + 2 hours (to test 1h30 before notification)
+        now = datetime.now()
+        appointment_date = now.strftime("%Y-%m-%d")
+        appointment_time = (now + timedelta(hours=2)).strftime("%H:%M")
+        
+        appointment = {
+            "patient_id": patient_id,
+            "patient_name": self.test_patient["name"],
+            "date": appointment_date,
+            "time": appointment_time
+        }
+        
+        print(f"Creating appointment for today ({appointment_date}) at {appointment_time}...")
+        response = requests.post(f"{BACKEND_URL}/appointments", json=appointment)
+        self.assertEqual(response.status_code, 200, f"Failed to create appointment: {response.text}")
+        
+        appointment_data = response.json()
+        appointment_id = appointment_data["id"]
+        self.created_resources["appointments"].append(appointment_id)
+        
+        # 1. Test GET /api/notifications
+        print("Testing GET /api/notifications endpoint...")
+        response = requests.get(f"{BACKEND_URL}/notifications")
+        self.assertEqual(response.status_code, 200, f"Failed to get notifications: {response.text}")
+        
+        notifications = response.json()
+        self.assertIsInstance(notifications, list, "Expected a list of notifications")
+        
+        # Filter notifications for our appointment
+        appointment_notifications = [n for n in notifications if n["appointment_id"] == appointment_id]
+        self.assertEqual(len(appointment_notifications), 2, 
+                         f"Expected 2 notifications for appointment, got {len(appointment_notifications)}")
+        
+        # Store notification IDs for later tests
+        notification_ids = [n["id"] for n in appointment_notifications]
+        
+        # 2. Test GET /api/notifications/pending
+        print("Testing GET /api/notifications/pending endpoint...")
+        response = requests.get(f"{BACKEND_URL}/notifications/pending")
+        self.assertEqual(response.status_code, 200, f"Failed to get pending notifications: {response.text}")
+        
+        pending_notifications = response.json()
+        self.assertIsInstance(pending_notifications, list, "Expected a list of pending notifications")
+        
+        # The 1h30 before notification should be pending if we're within 1h30 of the appointment
+        # But this depends on timing, so we'll just check the structure
+        if pending_notifications:
+            pending = pending_notifications[0]
+            self.assertIn("id", pending, "Expected 'id' field in pending notification")
+            self.assertIn("patient_name", pending, "Expected 'patient_name' field in pending notification")
+            self.assertIn("patient_contact", pending, "Expected 'patient_contact' field in pending notification")
+            self.assertIn("notification_type", pending, "Expected 'notification_type' field in pending notification")
+            self.assertIn("appointment_date", pending, "Expected 'appointment_date' field in pending notification")
+            self.assertIn("appointment_time", pending, "Expected 'appointment_time' field in pending notification")
+            self.assertIn("message", pending, "Expected 'message' field in pending notification")
+            self.assertIn("whatsapp_link", pending, "Expected 'whatsapp_link' field in pending notification")
+            self.assertIn("scheduled_time", pending, "Expected 'scheduled_time' field in pending notification")
+        
+        # 3. Test GET /api/notifications/upcoming
+        print("Testing GET /api/notifications/upcoming endpoint...")
+        response = requests.get(f"{BACKEND_URL}/notifications/upcoming")
+        self.assertEqual(response.status_code, 200, f"Failed to get upcoming notifications: {response.text}")
+        
+        upcoming_notifications = response.json()
+        self.assertIsInstance(upcoming_notifications, list, "Expected a list of upcoming notifications")
+        
+        # At least one of our notifications should be upcoming
+        if upcoming_notifications:
+            upcoming = upcoming_notifications[0]
+            self.assertIn("id", upcoming, "Expected 'id' field in upcoming notification")
+            self.assertIn("patient_name", upcoming, "Expected 'patient_name' field in upcoming notification")
+            self.assertIn("patient_contact", upcoming, "Expected 'patient_contact' field in upcoming notification")
+            self.assertIn("notification_type", upcoming, "Expected 'notification_type' field in upcoming notification")
+            self.assertIn("appointment_date", upcoming, "Expected 'appointment_date' field in upcoming notification")
+            self.assertIn("appointment_time", upcoming, "Expected 'appointment_time' field in upcoming notification")
+            self.assertIn("message", upcoming, "Expected 'message' field in upcoming notification")
+            self.assertIn("whatsapp_link", upcoming, "Expected 'whatsapp_link' field in upcoming notification")
+            self.assertIn("scheduled_time", upcoming, "Expected 'scheduled_time' field in upcoming notification")
+            self.assertIn("time_until_send", upcoming, "Expected 'time_until_send' field in upcoming notification")
+        
+        # 4. Test POST /api/notifications/{id}/mark-sent
+        if notification_ids:
+            print(f"Testing POST /api/notifications/{notification_ids[0]}/mark-sent endpoint...")
+            response = requests.post(f"{BACKEND_URL}/notifications/{notification_ids[0]}/mark-sent")
+            self.assertEqual(response.status_code, 200, f"Failed to mark notification as sent: {response.text}")
+            
+            # Verify notification is marked as sent
+            response = requests.get(f"{BACKEND_URL}/notifications")
+            notifications = response.json()
+            marked_notification = next((n for n in notifications if n["id"] == notification_ids[0]), None)
+            
+            self.assertIsNotNone(marked_notification, f"Could not find notification with ID {notification_ids[0]}")
+            self.assertTrue(marked_notification["sent"], "Notification should be marked as sent")
+        
+        print(f"Notification endpoints tests successful")
+        
+        return patient_id, appointment_id, notification_ids
+
+    def test_09_whatsapp_message_generation(self):
+        """Test WhatsApp message generation"""
+        print("\n=== Testing WhatsApp Message Generation ===")
+        
+        # Create a patient first
+        print("Creating patient for WhatsApp message test...")
+        response = requests.post(f"{BACKEND_URL}/patients", json=self.test_patient)
+        self.assertEqual(response.status_code, 200, f"Failed to create patient: {response.text}")
+        
+        patient_data = response.json()
+        patient_id = patient_data["id"]
+        self.created_resources["patients"].append(patient_id)
+        
+        # Create two appointments with different dates/times
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        appointments = [
+            {
+                "patient_id": patient_id,
+                "patient_name": self.test_patient["name"],
+                "date": tomorrow,
+                "time": "09:30"
+            },
+            {
+                "patient_id": patient_id,
+                "patient_name": self.test_patient["name"],
+                "date": tomorrow,
+                "time": "15:45"
+            }
+        ]
+        
+        appointment_ids = []
+        for i, appointment in enumerate(appointments):
+            print(f"Creating appointment {i+1} for {appointment['date']} at {appointment['time']}...")
+            response = requests.post(f"{BACKEND_URL}/appointments", json=appointment)
+            self.assertEqual(response.status_code, 200, f"Failed to create appointment: {response.text}")
+            
+            appointment_data = response.json()
+            appointment_id = appointment_data["id"]
+            appointment_ids.append(appointment_id)
+            self.created_resources["appointments"].append(appointment_id)
+        
+        # Get all notifications
+        print("Getting all notifications to check message generation...")
+        response = requests.get(f"{BACKEND_URL}/notifications")
+        self.assertEqual(response.status_code, 200, f"Failed to get notifications: {response.text}")
+        
+        notifications = response.json()
+        
+        # Filter notifications for our appointments
+        appointment_notifications = [n for n in notifications if n["appointment_id"] in appointment_ids]
+        
+        # We should have 4 notifications (2 per appointment)
+        self.assertEqual(len(appointment_notifications), 4, 
+                         f"Expected 4 notifications for 2 appointments, got {len(appointment_notifications)}")
+        
+        # Check WhatsApp message formatting for each notification
+        for notification in appointment_notifications:
+            # Basic message structure checks
+            self.assertIn("🦶", notification["message"], "Expected podiatry emoji in message")
+            self.assertIn("Podologia", notification["message"], "Expected 'Podologia' in message")
+            self.assertIn(self.test_patient["name"], notification["message"], "Patient name not found in message")
+            
+            # Convert YYYY-MM-DD to DD/MM/YYYY for Brazilian format
+            date_parts = notification["appointment_date"].split("-")
+            brazilian_date = f"{date_parts[2]}/{date_parts[1]}/{date_parts[0]}"
+            self.assertIn(brazilian_date, notification["message"], "Formatted date not found in message")
+            
+            self.assertIn(notification["appointment_time"], notification["message"], "Appointment time not found in message")
+            
+            # Check notification type specific content
+            if notification["notification_type"] == "1_day_before":
+                self.assertIn("amanhã", notification["message"], "Expected 'amanhã' in 1_day_before message")
+                self.assertIn("CONFIRMO", notification["message"], "Expected 'CONFIRMO' in 1_day_before message")
+                self.assertIn("CANCELAR", notification["message"], "Expected 'CANCELAR' in 1_day_before message")
+            else:  # 1_hour_30_before
+                self.assertIn("1h30", notification["message"], "Expected '1h30' in 1_hour_30_before message")
+                self.assertIn("A CAMINHO", notification["message"], "Expected 'A CAMINHO' in 1_hour_30_before message")
+                self.assertIn("ATRASO", notification["message"], "Expected 'ATRASO' in 1_hour_30_before message")
+                self.assertIn("CANCELAR", notification["message"], "Expected 'CANCELAR' in 1_hour_30_before message")
+        
+        # Test WhatsApp link generation
+        print("Testing WhatsApp link generation...")
+        response = requests.get(f"{BACKEND_URL}/notifications/upcoming")
+        self.assertEqual(response.status_code, 200, f"Failed to get upcoming notifications: {response.text}")
+        
+        upcoming_notifications = response.json()
+        
+        if upcoming_notifications:
+            for notification in upcoming_notifications:
+                # Check WhatsApp link format
+                self.assertIn("whatsapp_link", notification, "WhatsApp link not found in notification")
+                whatsapp_link = notification["whatsapp_link"]
+                
+                # Link should start with https://wa.me/
+                self.assertTrue(whatsapp_link.startswith("https://wa.me/"), 
+                               f"WhatsApp link should start with 'https://wa.me/', got: {whatsapp_link}")
+                
+                # Link should contain the patient's phone number with Brazil country code
+                clean_phone = ''.join(filter(str.isdigit, self.test_patient["contact"]))
+                if not clean_phone.startswith('55'):
+                    clean_phone = '55' + clean_phone
+                
+                self.assertIn(clean_phone, whatsapp_link, 
+                             f"WhatsApp link should contain patient's phone number {clean_phone}, got: {whatsapp_link}")
+                
+                # Link should contain the message as a URL parameter
+                self.assertIn("?text=", whatsapp_link, "WhatsApp link should contain '?text=' parameter")
+        
+        print(f"WhatsApp message generation tests successful")
+        
+        return patient_id, appointment_ids
+
+    def test_10_notification_scheduling(self):
+        """Test notification scheduling"""
+        print("\n=== Testing Notification Scheduling ===")
+        
+        # Create a patient first
+        print("Creating patient for notification scheduling test...")
+        response = requests.post(f"{BACKEND_URL}/patients", json=self.test_patient)
+        self.assertEqual(response.status_code, 200, f"Failed to create patient: {response.text}")
+        
+        patient_data = response.json()
+        patient_id = patient_data["id"]
+        self.created_resources["patients"].append(patient_id)
+        
+        # Create appointments with different times to test scheduling
+        now = datetime.now()
+        tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
+        day_after_tomorrow = (now + timedelta(days=2)).strftime("%Y-%m-%d")
+        
+        appointments = [
+            {
+                "patient_id": patient_id,
+                "patient_name": self.test_patient["name"],
+                "date": tomorrow,
+                "time": "10:00"
+            },
+            {
+                "patient_id": patient_id,
+                "patient_name": self.test_patient["name"],
+                "date": tomorrow,
+                "time": "16:30"
+            },
+            {
+                "patient_id": patient_id,
+                "patient_name": self.test_patient["name"],
+                "date": day_after_tomorrow,
+                "time": "14:15"
+            }
+        ]
+        
+        appointment_ids = []
+        for i, appointment in enumerate(appointments):
+            print(f"Creating appointment {i+1} for {appointment['date']} at {appointment['time']}...")
+            response = requests.post(f"{BACKEND_URL}/appointments", json=appointment)
+            self.assertEqual(response.status_code, 200, f"Failed to create appointment: {response.text}")
+            
+            appointment_data = response.json()
+            appointment_id = appointment_data["id"]
+            appointment_ids.append(appointment_id)
+            self.created_resources["appointments"].append(appointment_id)
+        
+        # Get all notifications
+        print("Getting all notifications to check scheduling...")
+        response = requests.get(f"{BACKEND_URL}/notifications")
+        self.assertEqual(response.status_code, 200, f"Failed to get notifications: {response.text}")
+        
+        notifications = response.json()
+        
+        # Filter notifications for our appointments
+        appointment_notifications = [n for n in notifications if n["appointment_id"] in appointment_ids]
+        
+        # We should have 6 notifications (2 per appointment)
+        self.assertEqual(len(appointment_notifications), 6, 
+                         f"Expected 6 notifications for 3 appointments, got {len(appointment_notifications)}")
+        
+        # Group notifications by appointment
+        notifications_by_appointment = {}
+        for notification in appointment_notifications:
+            appointment_id = notification["appointment_id"]
+            if appointment_id not in notifications_by_appointment:
+                notifications_by_appointment[appointment_id] = []
+            notifications_by_appointment[appointment_id].append(notification)
+        
+        # Check scheduling for each appointment
+        for i, appointment_id in enumerate(appointment_ids):
+            appointment = appointments[i]
+            appointment_notifications = notifications_by_appointment[appointment_id]
+            
+            # Should have 2 notifications per appointment
+            self.assertEqual(len(appointment_notifications), 2, 
+                            f"Expected 2 notifications for appointment {i+1}, got {len(appointment_notifications)}")
+            
+            # Get appointment datetime
+            appointment_datetime = datetime.strptime(f"{appointment['date']} {appointment['time']}", "%Y-%m-%d %H:%M")
+            
+            for notification in appointment_notifications:
+                scheduled_time = datetime.fromisoformat(notification["scheduled_time"].replace("Z", "+00:00"))
+                
+                if notification["notification_type"] == "1_day_before":
+                    # 1 day before notification should be scheduled for 24 hours before appointment
+                    expected_time = appointment_datetime - timedelta(days=1)
+                    time_diff = abs((scheduled_time - expected_time).total_seconds())
+                    
+                    # Allow for a small difference due to processing time
+                    self.assertLess(time_diff, 60, 
+                                   f"1_day_before notification scheduled time differs by {time_diff} seconds from expected")
+                    
+                else:  # 1_hour_30_before
+                    # 1h30 before notification should be scheduled for 1.5 hours before appointment
+                    expected_time = appointment_datetime - timedelta(hours=1, minutes=30)
+                    time_diff = abs((scheduled_time - expected_time).total_seconds())
+                    
+                    # Allow for a small difference due to processing time
+                    self.assertLess(time_diff, 60, 
+                                   f"1_hour_30_before notification scheduled time differs by {time_diff} seconds from expected")
+        
+        print(f"Notification scheduling tests successful")
+        
+        return patient_id, appointment_ids
+
 if __name__ == "__main__":
     # Run the tests
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
