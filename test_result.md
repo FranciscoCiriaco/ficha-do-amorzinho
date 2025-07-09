@@ -341,6 +341,7 @@ test_plan:
     - "Signature Capture"
     - "Appointment System"
     - "WhatsApp Notifications System"
+    - "WhatsApp Notifications Frontend"
   stuck_tasks: 
     - "Appointment System"
   test_all: true
