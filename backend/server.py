@@ -126,7 +126,88 @@ class AnamnesisCreate(BaseModel):
     responsibility_term: ResponsibilityTerm
     observations: str = ""
 
-# Appointment Models
+# Notification Models
+class Notification(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    appointment_id: str
+    patient_id: str
+    patient_name: str
+    patient_contact: str
+    notification_type: str  # "1_day_before" or "1_hour_30_before"
+    scheduled_time: datetime
+    appointment_date: str
+    appointment_time: str
+    message: str
+    sent: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class NotificationCreate(BaseModel):
+    appointment_id: str
+    notification_type: str
+
+# WhatsApp Message Templates
+def generate_whatsapp_message(patient_name: str, appointment_date: str, appointment_time: str, notification_type: str) -> str:
+    """Generate WhatsApp message based on notification type"""
+    
+    # Format date to Brazilian format
+    try:
+        date_obj = datetime.strptime(appointment_date, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d/%m/%Y")
+    except:
+        formatted_date = appointment_date
+    
+    if notification_type == "1_day_before":
+        message = f"""🦶 *Lembrete de Consulta - Podologia*
+
+Olá {patient_name}! 👋
+
+Este é um lembrete de que você tem uma consulta agendada para *amanhã* ({formatted_date}) às *{appointment_time}*.
+
+Por favor, confirme sua presença respondendo:
+✅ *CONFIRMO* - se você comparecerá
+❌ *CANCELAR* - se precisar cancelar
+
+📍 Não se esqueça de trazer documentos e chegar com 10 minutos de antecedência.
+
+Obrigado!"""
+    
+    else:  # 1_hour_30_before
+        message = f"""🦶 *Lembrete de Consulta - Podologia*
+
+Olá {patient_name}! 👋
+
+Sua consulta está próxima! 
+
+📅 Data: *{formatted_date}*
+🕐 Horário: *{appointment_time}*
+
+Você tem aproximadamente *1h30* para se preparar.
+
+Por favor, confirme que está a caminho respondendo:
+✅ *A CAMINHO* - se você está se dirigindo ao local
+❌ *ATRASO* - se você vai se atrasar
+❌ *CANCELAR* - se não puder comparecer
+
+📍 Lembre-se de chegar com 10 minutos de antecedência.
+
+Até logo!"""
+    
+    return message
+
+def create_whatsapp_link(phone: str, message: str) -> str:
+    """Create WhatsApp link with pre-filled message"""
+    # Clean phone number (remove non-digits)
+    clean_phone = ''.join(filter(str.isdigit, phone))
+    
+    # Add Brazil country code if not present
+    if not clean_phone.startswith('55'):
+        clean_phone = '55' + clean_phone
+    
+    # URL encode the message
+    import urllib.parse
+    encoded_message = urllib.parse.quote(message)
+    
+    return f"https://wa.me/{clean_phone}?text={encoded_message}"
 class Appointment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     patient_id: str
