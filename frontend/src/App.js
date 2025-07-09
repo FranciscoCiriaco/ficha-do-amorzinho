@@ -990,7 +990,214 @@ const PatientsList = () => {
   );
 };
 
-// Appointments Component
+// Notifications Component
+const Notifications = () => {
+  const [pendingNotifications, setPendingNotifications] = useState([]);
+  const [upcomingNotifications, setUpcomingNotifications] = useState([]);
+  const [activeTab, setActiveTab] = useState("pending");
+
+  useEffect(() => {
+    fetchNotifications();
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const [pendingResponse, upcomingResponse] = await Promise.all([
+        axios.get(`${API}/notifications/pending`),
+        axios.get(`${API}/notifications/upcoming`)
+      ]);
+      
+      setPendingNotifications(pendingResponse.data);
+      setUpcomingNotifications(upcomingResponse.data);
+    } catch (error) {
+      console.error("Erro ao carregar notificações:", error);
+    }
+  };
+
+  const markAsSent = async (notificationId) => {
+    try {
+      await axios.post(`${API}/notifications/${notificationId}/mark-sent`);
+      fetchNotifications(); // Refresh the list
+      alert("Notificação marcada como enviada!");
+    } catch (error) {
+      console.error("Erro ao marcar notificação como enviada:", error);
+      alert("Erro ao marcar notificação como enviada");
+    }
+  };
+
+  const openWhatsApp = (whatsappLink, notificationId) => {
+    window.open(whatsappLink, '_blank');
+    // Optionally mark as sent immediately
+    setTimeout(() => {
+      if (window.confirm("Deseja marcar esta notificação como enviada?")) {
+        markAsSent(notificationId);
+      }
+    }, 2000);
+  };
+
+  const formatDateTime = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleString('pt-BR');
+  };
+
+  const getNotificationTypeLabel = (type) => {
+    return type === "1_day_before" ? "1 dia antes" : "1h30 antes";
+  };
+
+  const getTimeDifference = (scheduledTime) => {
+    const now = new Date();
+    const scheduled = new Date(scheduledTime);
+    const diffMs = scheduled - now;
+    
+    if (diffMs < 0) {
+      return "Atrasado";
+    }
+    
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (diffHours > 0) {
+      return `${diffHours}h ${diffMinutes}m`;
+    } else {
+      return `${diffMinutes}m`;
+    }
+  };
+
+  return (
+    <div className="container">
+      <div className="form-header">
+        <h2>🔔 Notificações WhatsApp</h2>
+        <button onClick={fetchNotifications} className="add-btn">
+          🔄 Atualizar
+        </button>
+      </div>
+
+      <div className="notification-tabs">
+        <button 
+          className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pending')}
+        >
+          📢 Pendentes ({pendingNotifications.length})
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'upcoming' ? 'active' : ''}`}
+          onClick={() => setActiveTab('upcoming')}
+        >
+          ⏰ Próximas ({upcomingNotifications.length})
+        </button>
+      </div>
+
+      {activeTab === 'pending' && (
+        <div className="notifications-section">
+          <h3>📢 Notificações Pendentes</h3>
+          {pendingNotifications.length === 0 ? (
+            <p className="no-notifications">Nenhuma notificação pendente no momento.</p>
+          ) : (
+            <div className="notifications-grid">
+              {pendingNotifications.map(notification => (
+                <div key={notification.id} className="notification-card pending">
+                  <div className="notification-header">
+                    <h4>{notification.patient_name}</h4>
+                    <span className="notification-type">
+                      {getNotificationTypeLabel(notification.notification_type)}
+                    </span>
+                  </div>
+                  
+                  <div className="notification-details">
+                    <p><strong>📅 Data:</strong> {new Date(notification.appointment_date).toLocaleDateString('pt-BR')}</p>
+                    <p><strong>🕐 Horário:</strong> {notification.appointment_time}</p>
+                    <p><strong>📱 Contato:</strong> {notification.patient_contact}</p>
+                  </div>
+                  
+                  <div className="notification-message">
+                    <h5>💬 Mensagem:</h5>
+                    <div className="message-preview">
+                      {notification.message.substring(0, 100)}...
+                    </div>
+                  </div>
+                  
+                  <div className="notification-actions">
+                    <button 
+                      onClick={() => openWhatsApp(notification.whatsapp_link, notification.id)}
+                      className="whatsapp-btn"
+                    >
+                      📱 Enviar WhatsApp
+                    </button>
+                    <button 
+                      onClick={() => markAsSent(notification.id)}
+                      className="mark-sent-btn"
+                    >
+                      ✅ Marcar como Enviada
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'upcoming' && (
+        <div className="notifications-section">
+          <h3>⏰ Próximas Notificações</h3>
+          {upcomingNotifications.length === 0 ? (
+            <p className="no-notifications">Nenhuma notificação programada para as próximas 24 horas.</p>
+          ) : (
+            <div className="notifications-grid">
+              {upcomingNotifications.map(notification => (
+                <div key={notification.id} className="notification-card upcoming">
+                  <div className="notification-header">
+                    <h4>{notification.patient_name}</h4>
+                    <span className="notification-type">
+                      {getNotificationTypeLabel(notification.notification_type)}
+                    </span>
+                  </div>
+                  
+                  <div className="notification-details">
+                    <p><strong>📅 Data:</strong> {new Date(notification.appointment_date).toLocaleDateString('pt-BR')}</p>
+                    <p><strong>🕐 Horário:</strong> {notification.appointment_time}</p>
+                    <p><strong>📱 Contato:</strong> {notification.patient_contact}</p>
+                    <p><strong>⏱️ Enviar em:</strong> {getTimeDifference(notification.scheduled_time)}</p>
+                  </div>
+                  
+                  <div className="notification-message">
+                    <h5>💬 Mensagem programada:</h5>
+                    <div className="message-preview">
+                      {notification.message.substring(0, 100)}...
+                    </div>
+                  </div>
+                  
+                  <div className="notification-actions">
+                    <button 
+                      onClick={() => {
+                        const modal = document.createElement('div');
+                        modal.className = 'message-modal';
+                        modal.innerHTML = `
+                          <div class="modal-content">
+                            <h3>Mensagem completa</h3>
+                            <pre>${notification.message}</pre>
+                            <button onclick="this.parentElement.parentElement.remove()">Fechar</button>
+                          </div>
+                        `;
+                        document.body.appendChild(modal);
+                      }}
+                      className="preview-btn"
+                    >
+                      👁️ Ver Mensagem
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
