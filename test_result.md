@@ -134,6 +134,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Anamnesis Form API is working correctly. Create, read, and update operations were tested successfully. Note: Delete operation is not implemented (returns 405 Method Not Allowed), but this is not a critical issue as it wasn't specified in the requirements."
+      - working: true
+        agent: "testing"
+        comment: "Anamnesis Form API with the new observations field is working correctly. Successfully tested creating a new anamnesis with observations, retrieving it, and updating the observations field. The observations field is properly stored and retrieved in all API operations."
 
   - task: "Database Models"
     implemented: true
@@ -149,6 +152,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Database models are working correctly. All models (Patient, Anamnesis with nested GeneralData, ClinicalData, and ResponsibilityTerm, and Appointment) were tested through API operations and are functioning as expected."
+      - working: true
+        agent: "testing"
+        comment: "The updated Anamnesis model with the new observations field is working correctly. The field is properly defined in the model and is correctly stored in and retrieved from the database."
 
   - task: "Search Functionality"
     implemented: true
@@ -179,6 +185,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Appointment Management API is working correctly. Create and read operations were tested successfully. Note: Delete operation is not implemented (returns 405 Method Not Allowed), but this is not a critical issue as it wasn't specified in the requirements."
+      - working: true
+        agent: "testing"
+        comment: "Verified that all existing appointment functionality continues to work correctly after the anamnesis model update. Successfully tested appointment creation, retrieval of all appointments, and retrieval of appointments for a specific patient."
 
 frontend:
   - task: "Patient Registration Form"
