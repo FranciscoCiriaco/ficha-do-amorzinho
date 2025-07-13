@@ -423,9 +423,11 @@ class DatabaseService {
   }
 
   Map<String, dynamic> _parseJsonString(String jsonString) {
-    // Simple JSON parsing - in production, use proper JSON parsing
-    // This is a simplified implementation
-    return {};
+    try {
+      return json.decode(jsonString);
+    } catch (e) {
+      return {};
+    }
   }
 
   // Close database connection
