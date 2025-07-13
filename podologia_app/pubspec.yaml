@@ -47,6 +47,7 @@ dependencies:
   
   # Local notifications
   flutter_local_notifications: ^16.3.2
+  timezone: ^0.9.4
   
   # Utilities
   uuid: ^4.1.0
