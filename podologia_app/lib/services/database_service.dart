@@ -381,10 +381,11 @@ class DatabaseService {
 
   // Helper methods
   String _convertToJson(dynamic object) {
-    if (object is Map) {
+    try {
+      return json.encode(object);
+    } catch (e) {
       return object.toString();
     }
-    return object.toString();
   }
 
   Anamnesis _anamnesisFromMap(Map<String, dynamic> map) {
