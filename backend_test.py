@@ -5,7 +5,7 @@ import unittest
 from datetime import datetime, timedelta
 
 # Get the backend URL from the frontend/.env file
-BACKEND_URL = "https://a265bd68-87e1-47fc-8a06-2fa885ac2d71.preview.emergentagent.com/api"
+BACKEND_URL = "https://6fc52b3e-8be9-42cb-8b74-7d2ad243b2fc.preview.emergentagent.com/api"
 
 class PodiatryBackendTest(unittest.TestCase):
     """Test suite for the Podiatry Management System Backend API"""

@@ -1,0 +1,108 @@
+<analysis>
+The previous AI engineer successfully developed a full-stack web application for podiatry management using React (frontend) and FastAPI with SQLite (backend). The development followed a phased approach, prioritizing core functionalities like patient registration and anamnesis forms, followed by appointment scheduling and WhatsApp notifications. The engineer rigorously tested each feature, ensuring a robust and functional system. A key decision was to provide a  export of the complete web application. Subsequently, the user initiated a significant pivot, requesting the *entire system* to be transformed into an offline Flutter Android application (.apk), retaining all existing functionalities while adding new mobile-specific requirements like a dashboard and local notifications. The current work involves setting up the Flutter development environment and extracting the previous project's components as a basis for the mobile re-implementation.
+</analysis>
+
+<product_requirements>
+The user requested a comprehensive Podiatry Management System. The initial requirements for the web application included:
+1.  **Patient Registration**: Fields for Name, Address (Bairro, Cidade, Estado, CEP), Birth Date, Sex, Profession, Contact Number (WhatsApp). Data to be saved in a patient-specific table.
+2.  **Standard Anamnesis Form**: Based on a provided PDF, fields for Main complaint, Podiatrist frequency, Medications, Allergies, Work position, Orthotic use, Smoking, Pregnancy, Breastfeeding, Physical activity, Clinical data (hypertension, diabetes, etc.), Foot alterations/lesions, Perfusion, Additional observations. Includes a Term of Responsibility with name, RG, CPF, and signature capture (touch).
+3.  **Filled Form History**: Automatic entry for each saved form, allowing viewing, editing, deleting, or duplicating previous forms.
+4.  **Appointment Scheduling**: Calendar-based system to store date/time for next consultations, allowing multiple appointments per patient and viewing all future appointments.
+5.  **Notifications/Alerts**: Automatic WhatsApp/SMS message generation (for manual sending) one day and one hour before appointments. Local mobile alerts for the professional (e.g., Confirm presence of Fulano at 15h) with a button to confirm attendance.
+6.  **Patient/Form Search**: Search by name, CPF, or phone, displaying personal data, next appointment, and form history.
+7.  **Local Database**: SQLite for local data storage, with optional export to .csv or .pdf.
+The user later requested adding an Observations field to the anamnesis form and implementing the calendar-based appointment system, both of which were completed. The final web application also included WhatsApp notification generation.
+
+The user then explicitly requested a **Flutter Android offline application (.apk)** with the following new/reiterated requirements:
+1.  **Dashboard**: Display monthly attendance, weak/strong months/days.
+2.  **Feature Parity**: Reproduce all functionalities of the original web system (patient registration, anamnesis, history, etc.).
+3.  **Offline Capability**: Fully offline operation using local SQLite, no internet/server dependence, no Firebase/online services.
+4.  **Patient Registration Screen**: Same fields as the original.
+5.  **Anamnesis Form Screen**: For filling and editing.
+6.  **Form History & Appointments**: View history per patient, mark next appointment dates.
+7.  **Local Notifications**: 1 hour before appointment on the mobile.
+8.  **Confirm Attendance Button**: For patients.
+9.  **WhatsApp Message Button**: To remind patients.
+10. **Save form button**: At the end of the form.
+11. **Signed APK**: Generate a signed .
+12. **Source Code**: Provide the complete source code in  format.
+</product_requirements>
+
+<key_technical_concepts>
+-   **Web Stack**: React.js (Frontend), FastAPI (Backend), SQLite (Database).
+-   **Mobile Stack**: Flutter (Cross-platform framework), SQLite (Local Database).
+-   **Core Features**: CRUD operations, form handling, state management, routing, API integration.
+-   **Advanced Features**: Digital signature capture, calendar scheduling, automated notification generation (WhatsApp message links).
+</key_technical_concepts>
+
+<code_architecture>
+The previous AI engineer developed a full-stack web application with a clear separation between frontend and backend.
+
+**High-Level Architecture (Web App):**
+The application follows a typical client-server architecture:
+-   **Frontend**: Built with React, responsible for the user interface and interacting with the backend API.
+-   **Backend**: Built with FastAPI, providing RESTful APIs for data management, interacting with the SQLite database.
+-   **Database**: SQLite, used for local data storage, accessed by the FastAPI backend.
+
+**Directory Structure (Original Web App):**
+
+
+**Key Files and Changes (Web App):**
+-   :
+    -   **Importance**: This is the core of the backend. It defines all API endpoints, database models (Patient, AnamnesisForm, Appointment, Notification), and business logic. It handles patient registration, anamnesis form submission and retrieval, appointment scheduling, and automatic generation of WhatsApp notification messages.
+    -   **Changes Made**:
+        -   Initial setup for Patient and Anamnesis models and CRUD operations.
+        -   Added  model and related endpoints for scheduling.
+        -   Added  model and logic to generate notifications upon appointment creation.
+        -   Integrated SQLite database access.
+        -   Implemented  field in AnamnesisForm model.
+-   :
+    -   **Importance**: This is the main React component, acting as the single-page application's entry point for UI and routing. It contains all forms, display components, and state management for the frontend.
+    -   **Changes Made**:
+        -   Implemented Patient Registration Form with all specified fields.
+        -   Developed the comprehensive Anamnesis Form, including clinical data and signature capture.
+        -   Added routing for patient search, form history, and new anamnesis.
+        -   Integrated  hook for dynamic routing (e.g., patient ID for anamnesis).
+        -   Implemented the  text area in the AnamnesisForm.
+        -   Integrated and styled the calendar for appointment scheduling.
+        -   Added appointment creation form with patient and time selection dropdowns.
+        -   Developed the Notifications component to display and manage generated WhatsApp messages, including Send WhatsApp and Mark as Sent buttons.
+        -   All frontend API calls use  from .
+-   :
+    -   **Importance**: Provides global and component-specific styling for the React application, ensuring a responsive and visually appealing interface.
+    -   **Changes Made**: Added styling for new components like the calendar, appointment form, notification page, and the observation field.
+-    and :
+    -   **Importance**: Define Python and Node.js dependencies respectively, ensuring the project can be set up and run correctly.
+    -   **Changes Made**: Added new dependencies as features were introduced (e.g.,  for MongoDB setup initially, then replaced for SQLite setup implicitly, , , etc.).
+
+**Current State of Code Architecture (Transition to Flutter):**
+The web application is fully built and exported. The current task is to re-implement this system in Flutter. The trajectory shows the initial steps of setting up the Flutter environment by downloading and extracting the Flutter SDK. No specific Flutter project structure or code files have been created yet, beyond the intention to extract the existing web app's logic for re-implementation.
+</code_architecture>
+
+<pending_tasks>
+The following tasks are pending as they relate to the new Flutter Android application development:
+-   Implement a dashboard with monthly/daily attendance statistics.
+-   Replicate all web application functionalities (cadastro, forms, anamnese, histórico) in Flutter.
+-   Utilize SQLite for local, offline data storage in Flutter.
+-   Implement local mobile notifications (1 hour before).
+-   Add buttons for confirming attendance and sending WhatsApp messages.
+-   Generate a signed  file.
+-   Provide the complete Flutter source code in  format.
+</pending_tasks>
+
+<current_work>
+The previous AI engineer successfully completed the development of the web-based podiatry management system, fulfilling all initial and subsequent requests including patient registration, comprehensive anamnesis forms with digital signature and observations field, patient search, appointment scheduling with a calendar, and automatic WhatsApp notification generation. The system was thoroughly tested, and a complete source code archive () was provided and made available for direct download.
+
+Immediately before this summary request, the user provided a new, significant task: to transform the *entire* web system into a **fully offline Flutter Android application (.apk)**. This requires a complete re-implementation of all existing functionalities in Flutter, alongside new mobile-specific features like a dashboard and local notifications.
+
+The AI engineer has just begun this new phase. The most recent actions indicate the initial setup of the Flutter development environment within the container:
+1.  **Installing **: To extract compressed files.
+2.  **Downloading Flutter SDK**: Fetching  from Google's storage.
+3.  **Extracting Flutter SDK**: Unpacking the downloaded archive into  and setting up the Flutter tools.
+
+This marks the very first step in transitioning from the web stack (React/FastAPI) to the mobile stack (Flutter). No Flutter project has been initialized or code written for the application itself yet; the focus is on getting the necessary development tools in place.
+</current_work>
+
+<optional_next_step>
+The next step is to initialize a new Flutter project and begin extracting and adapting the data models and business logic from the previously developed web application.
+</optional_next_step>
